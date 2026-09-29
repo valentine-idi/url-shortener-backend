@@ -2,7 +2,7 @@ module.exports = function (err, req, res, next) {
   if (res.headersSent) return next(err);
 
   let statusCode = err.statusCode || 500;
-  let message = "Something Went Wrong";
+  let message = err.message;
 
   if (err.name === "Validation Error") {
     statusCode = 400;

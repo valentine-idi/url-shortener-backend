@@ -3,26 +3,26 @@ const router = express.Router();
 const Link = require("../models/Link");
 const generateShortCode = require("../utils/generateShortCode");
 const isValidUrl = require("../utils/isValidUrl");
+const asyncHandler = require("../middlewares/asyncHandler");
+const auth = require("../middlewares/auth");
 
-router.get("/", (req, res) => {
-  res.send("Testing");
-});
+router.post(
+  "/",
+  auth,
+  asyncHandler(async (req, res) => {
+    const user = req.user;
+    const { link } = req.body;
+    const isUrlValid = isValidUrl(link);
 
-router.post("/", async (req, res) => {
-  const user = req.user;
-  const { link } = req.body;
-  const isUrlValid = isValidUrl(link);
+    if (!isUrlValid)
+      return res.status(400).json({ message: "Please enter a valid url" });
 
-  if (!isUrlValid)
-    return res.status(400).json({ message: "Please enter a valid url" });
+    const shortCode = generateShortCode();
 
-  const shortCode = generateShortCode();
-
-  try {
     const newLink = new Link({
       shortCode,
       originalUrl: link,
-      user: req.user?._id,
+      user: req.user?.id,
     });
 
     await newLink.save();
@@ -31,11 +31,9 @@ router.post("/", async (req, res) => {
       shortCode,
       originalUrl: link,
       shortUrl: `${process.env.BASE_URL}/${shortCode}`,
-      user: req.user?._id,
+      user: req.user?.id || undefined,
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+  }),
+);
 
 module.exports = router;
