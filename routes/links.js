@@ -19,22 +19,22 @@ router.post("/", async (req, res) => {
   const shortCode = generateShortCode();
 
   try {
-    const link = new Link({
+    const newLink = new Link({
       shortCode,
       originalUrl: link,
-      user: req.user._id,
+      user: req.user?._id,
     });
 
-    await link.save();
+    await newLink.save();
 
     res.json({
       shortCode,
       originalUrl: link,
       shortUrl: `${process.env.BASE_URL}/${shortCode}`,
-      user: req.user._id,
+      user: req.user?._id,
     });
-  } catch (error) {
-    res.status(500).json({ message: "Error occured" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
