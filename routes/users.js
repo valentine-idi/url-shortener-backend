@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { User, userValidation } = require("../models/User");
+const asyncHandler = require("../middlewares/async");
 
-router.post("/register", async (req, res) => {
-  const { error } = userValidation(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
+    const { error } = userValidation(req.body);
+    if (error)
+      return res.status(400).send({ message: error.details[0].message });
 
-  try {
     const { name, email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -21,9 +24,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+  }),
+);
 
 module.exports = router;

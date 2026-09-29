@@ -1,6 +1,9 @@
-function async() {
-  try {
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+function async(handler) {
+  return (req, res, next) => {
+    try {
+      await handler();
+    } catch (error) {
+      next(error);
+    }
+  };
 }
