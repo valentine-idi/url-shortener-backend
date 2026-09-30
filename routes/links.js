@@ -4,7 +4,21 @@ const Link = require("../models/Link");
 const generateShortCode = require("../utils/generateShortCode");
 const isValidUrl = require("../utils/isValidUrl");
 const asyncHandler = require("../middlewares/asyncHandler");
-const { optionalAuth } = require("../middlewares/auth");
+const { optionalAuth, requireAuth } = require("../middlewares/auth");
+
+router.get(
+  "/",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    const links = await Link.find({ user: userId }).select(
+      "_id shortCode originalUrl user",
+    );
+
+    res.json(links);
+  }),
+);
 
 router.post(
   "/",
