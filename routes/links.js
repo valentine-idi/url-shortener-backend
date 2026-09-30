@@ -4,11 +4,11 @@ const Link = require("../models/Link");
 const generateShortCode = require("../utils/generateShortCode");
 const isValidUrl = require("../utils/isValidUrl");
 const asyncHandler = require("../middlewares/asyncHandler");
-const auth = require("../middlewares/auth");
+const { optionalAuth } = require("../middlewares/auth");
 
 router.post(
   "/",
-  auth,
+  optionalAuth,
   asyncHandler(async (req, res) => {
     const user = req.user;
     const { link } = req.body;
