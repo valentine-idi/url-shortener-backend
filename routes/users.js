@@ -4,10 +4,22 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User, userValidation } = require("../models/User");
 const asyncHandler = require("../middlewares/asyncHandler");
+const { requireAuth } = require("../middlewares/auth");
+
+router.get(
+  "/me",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).select("_id name email");
+    res.json(user);
+  }),
+);
 
 router.post(
   "/register",
-  asyncHandler(async (req, res, next) => {
+  asyncHandler(async (req, res) => {
     const { error } = userValidation(req.body);
     if (error)
       return res.status(400).send({ message: error.details[0].message });
