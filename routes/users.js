@@ -61,7 +61,11 @@ router.post(
     const token = user.generateToken();
 
     res.json({
-      email: req.body.email,
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+
       token,
     });
   }),

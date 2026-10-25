@@ -12,8 +12,8 @@ router.get(
   asyncHandler(async (req, res) => {
     const userId = req.user.id;
 
-    const links = await Link.find({ user: userId }).select(
-      "_id shortCode originalUrl user",
+    const links = await Link.find({ userId }).select(
+      "_id shortUrl shortCode originalUrl userId",
     );
 
     res.json(links);
@@ -36,7 +36,7 @@ router.post(
     const newLink = new Link({
       shortCode,
       originalUrl: link,
-      user: req.user?.id,
+      userId: req.user?.id,
     });
 
     await newLink.save();
@@ -45,7 +45,7 @@ router.post(
       shortCode,
       originalUrl: link,
       shortUrl: `${process.env.BASE_URL}/${shortCode}`,
-      user: req.user?.id || undefined,
+      userId: req.user?.id || undefined,
     });
   }),
 );
