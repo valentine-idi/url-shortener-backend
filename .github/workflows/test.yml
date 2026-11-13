@@ -27,8 +27,8 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install Dependencies
         run: npm ci
-      - name: Run server
-        run: npm start
+      # - name: Run server
+      #   run: npm start
       - name: Run Tests
         run: echo "Running tests..."
       - name: Output Environment Variables
