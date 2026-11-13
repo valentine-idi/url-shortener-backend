@@ -16,7 +16,15 @@ router.get(
       "_id shortUrl shortCode originalUrl userId",
     );
 
-    res.json(links);
+    const newLinks = links.map((link) => ({
+      id: link._id,
+      originalUrl: link.originalUrl,
+      shortCode: link.shortCode,
+      shortUrl: `${process.env.BASE_URL}/${link.shortCode}`,
+      userId: link.userId,
+    }));
+
+    res.json(newLinks);
   }),
 );
 
@@ -42,11 +50,30 @@ router.post(
     await newLink.save();
 
     res.json({
+      id: newLink._id,
       shortCode,
       originalUrl: link,
       shortUrl: `${process.env.BASE_URL}/${shortCode}`,
       userId: req.user?.id || undefined,
     });
+  }),
+);
+
+router.delete(
+  "/:id",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const link = await Link.findById(req.params.id);
+
+    if (!link) return res.status(404).json({ message: "Link does not exist" });
+
+    if (link.userId.toString() !== userId)
+      return res.status(403).json({ message: "Cannot delete this link" });
+
+    const result = await Link.findByIdAndDelete(req.params.id);
+
+    res.status(200).json(result);
   }),
 );
 

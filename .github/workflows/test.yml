@@ -1,0 +1,45 @@
+name: Testing workflow
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      DB: ${{ secrets.DB }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      BASE_URL: ${{ vars.BASE_URL }}
+      PORT: ${{ vars.PORT }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run server
+        run: npm start
+      - name: Run Tests
+        run: echo "Running tests..."
+      - name: Output Environment Variables
+        run: |
+          echo "BASE_URL=${{ vars.BASE_URL }}" >> $GITHUB_ENV
+          echo "PORT=${{ vars.PORT }}" >> $GITHUB_ENV
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Deploy Application
+        run: echo "Deploying application..."
